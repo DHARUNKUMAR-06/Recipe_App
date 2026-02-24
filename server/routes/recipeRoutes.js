@@ -4,6 +4,7 @@ const {
   getAllRecipes,
   getRecipe,
   createRecipe,
+  updateRecipe,
   filterRecipes,
   toggleFavorite,
   getFavorites
@@ -15,6 +16,7 @@ router.get('/filter', filterRecipes);
 router.get('/favorites', auth, getFavorites);
 router.get('/:id', getRecipe);
 router.post('/', auth, createRecipe);
+router.put('/:id', auth, updateRecipe);
 router.post('/:id/favorite', auth, toggleFavorite);
 
 module.exports = router;

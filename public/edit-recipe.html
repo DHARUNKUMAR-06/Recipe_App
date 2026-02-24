@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Recipe</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="logo" style="cursor: pointer;" onclick="window.location.href='/'">🍳 RecipeShare</h1>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/add-recipe.html">Add Recipe</a>
+                <a href="/favorites.html">Favorites</a>
+                <div id="auth-links">
+                    <a href="/landing.html">Join / Login</a>
+                </div>
+                <div id="user-info" style="display: none;">
+                    <span id="username"></span>
+                    <button onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="auth-form">
+        <h2>Edit Recipe</h2>
+        <div id="error-message" style="color: red; margin-bottom: 10px; display: none;"></div>
+        <div id="success-message" style="color: green; margin-bottom: 10px; display: none;"></div>
+
+        <form id="edit-recipe-form">
+            <div class="form-group">
+                <label>Title *</label>
+                <input type="text" id="title" required>
+            </div>
+            <div class="form-group">
+                <label>Ingredients *</label>
+                <textarea id="ingredients" rows="4" required placeholder="Enter each ingredient in new line"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Instructions *</label>
+                <textarea id="instructions" rows="4" required placeholder="Enter cooking steps"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Cuisine *</label>
+                <select id="cuisine" required>
+                    <option value="">Select Cuisine</option>
+                    <option value="Indian">Indian</option>
+                    <option value="Italian">Italian</option>
+                    <option value="Chinese">Chinese</option>
+                    <option value="Mexican">Mexican</option>
+                    <option value="Thai">Thai</option>
+                    <option value="Dessert">Dessert</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Diet Type *</label>
+                <select id="dietType" required>
+                    <option value="">Select Diet Type</option>
+                    <option value="Veg">Vegetarian</option>
+                    <option value="Non-Veg">Non-Vegetarian</option>
+                    <option value="Vegan">Vegan</option>
+                    <option value="Gluten-Free">Gluten Free</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Image URL (optional)</label>
+                <input type="url" id="imageUrl" placeholder="https://example.com/image.jpg">
+            </div>
+            <button type="submit" id="submit-btn" class="btn-primary">Update Recipe</button>
+        </form>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const recipeId = urlParams.get('id');
+
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', async function () {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Please login to edit recipes');
+                window.location.href = '/landing.html';
+                return;
+            }
+
+            if (!recipeId) {
+                alert('No recipe specified');
+                window.location.href = '/';
+                return;
+            }
+
+            try {
+                // Fetch the existing recipe details using the API.getRecipe from api.js
+                const recipe = await API.getRecipe(recipeId);
+
+                document.getElementById('title').value = recipe.title;
+                document.getElementById('ingredients').value = recipe.ingredients;
+                document.getElementById('instructions').value = recipe.instructions;
+                document.getElementById('cuisine').value = recipe.cuisine;
+                document.getElementById('dietType').value = recipe.dietType;
+
+                // Don't show placeholder image URL in the input field
+                if (recipe.imageUrl && !recipe.imageUrl.includes('via.placeholder.com')) {
+                    document.getElementById('imageUrl').value = recipe.imageUrl;
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Error loading recipe details');
+                window.location.href = '/';
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('edit-recipe-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            // Get form values
+            const recipeData = {
+                title: document.getElementById('title').value,
+                ingredients: document.getElementById('ingredients').value,
+                instructions: document.getElementById('instructions').value,
+                cuisine: document.getElementById('cuisine').value,
+                dietType: document.getElementById('dietType').value,
+                imageUrl: document.getElementById('imageUrl').value || 'https://via.placeholder.com/300x200?text=Recipe'
+            };
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Updating...';
+
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) throw new Error('Please login first');
+
+                const response = await fetch(`/api/recipes/${recipeId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(recipeData)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to update recipe');
+                }
+
+                alert('Recipe updated successfully!');
+                window.location.href = '/';
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Update Recipe';
+            }
+        });
+    </script>
+</body>
+
+</html>
