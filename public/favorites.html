@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favorites</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="logo" style="cursor: pointer;" onclick="window.location.href='/'">🍳 RecipeShare</h1>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/add-recipe.html">Add Recipe</a>
+                <a href="/favorites.html" class="active">Favorites</a>
+                <div id="auth-links">
+                    <a href="/landing.html">Join / Login</a>
+                </div>
+                <div id="user-info" style="display: none;">
+                    <span id="username"></span>
+                    <button onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h2>My Favorite Recipes</h2>
+        <div id="favorites-container" class="recipes-grid">
+            <!-- Favorites will be loaded here -->
+        </div>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/favorites.js"></script>
+</body>
+
+</html>

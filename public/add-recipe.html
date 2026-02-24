@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Recipe</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="logo" style="cursor: pointer;" onclick="window.location.href='/'">🍳 RecipeShare</h1>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/add-recipe.html" class="active">Add Recipe</a>
+                <a href="/favorites.html">Favorites</a>
+                <div id="auth-links">
+                    <a href="/landing.html">Join / Login</a>
+                </div>
+                <div id="user-info" style="display: none;">
+                    <span id="username"></span>
+                    <button onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="auth-form">
+        <h2>Add New Recipe</h2>
+        <div id="error-message" style="color: red; margin-bottom: 10px; display: none;"></div>
+        <div id="success-message" style="color: green; margin-bottom: 10px; display: none;"></div>
+
+        <form id="add-recipe-form">
+            <div class="form-group">
+                <label>Title *</label>
+                <input type="text" id="title" required>
+            </div>
+            <div class="form-group">
+                <label>Ingredients *</label>
+                <textarea id="ingredients" rows="4" required placeholder="Enter each ingredient in new line"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Instructions *</label>
+                <textarea id="instructions" rows="4" required placeholder="Enter cooking steps"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Cuisine *</label>
+                <select id="cuisine" required>
+                    <option value="">Select Cuisine</option>
+                    <option value="Indian">Indian</option>
+                    <option value="Italian">Italian</option>
+                    <option value="Chinese">Chinese</option>
+                    <option value="Mexican">Mexican</option>
+                    <option value="Thai">Thai</option>
+                    <option value="Dessert">Dessert</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Diet Type *</label>
+                <select id="dietType" required>
+                    <option value="">Select Diet Type</option>
+                    <option value="Veg">Vegetarian</option>
+                    <option value="Non-Veg">Non-Vegetarian</option>
+                    <option value="Vegan">Vegan</option>
+                    <option value="Gluten-Free">Gluten Free</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Image URL (optional)</label>
+                <input type="url" id="imageUrl" placeholder="https://example.com/image.jpg">
+            </div>
+            <button type="submit" id="submit-btn" class="btn-primary">Add Recipe</button>
+        </form>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function () {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Please login to add recipes');
+                window.location.href = '/landing.html';
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('add-recipe-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            // Get form values
+            const recipeData = {
+                title: document.getElementById('title').value,
+                ingredients: document.getElementById('ingredients').value,
+                instructions: document.getElementById('instructions').value,
+                cuisine: document.getElementById('cuisine').value,
+                dietType: document.getElementById('dietType').value,
+                imageUrl: document.getElementById('imageUrl').value || 'https://via.placeholder.com/300x200?text=Recipe'
+            };
+
+            console.log('Sending recipe:', recipeData); // Debug
+
+            // Disable button
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Adding...';
+
+            try {
+                // Get token
+                const token = localStorage.getItem('token');
+
+                if (!token) {
+                    throw new Error('Please login first');
+                }
+
+                // Make API call
+                const response = await fetch('/api/recipes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(recipeData)
+                });
+
+                const data = await response.json();
+                console.log('Response:', data); // Debug
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to add recipe');
+                }
+
+                // Show success
+                alert('Recipe added successfully!');
+                window.location.href = '/';
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Add Recipe';
+            }
+        });
+    </script>
+</body>
+
+</html>

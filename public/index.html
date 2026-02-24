@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Sharing App</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="logo" style="cursor: pointer;" onclick="window.location.href='/'">🍳 RecipeShare</h1>
+            <div class="nav-links">
+                <a href="/" class="active">Home</a>
+                <a href="/add-recipe.html">Add Recipe</a>
+                <a href="/favorites.html">Favorites</a>
+                <div id="auth-links">
+                    <a href="/landing.html">Join / Login</a>
+                </div>
+                <div id="user-info" style="display: none;">
+                    <span id="username"></span>
+                    <button onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="filters">
+            <h2>Filter Recipes</h2>
+            <div class="filter-group">
+                <select id="cuisine-filter">
+                    <option value="">All Cuisines</option>
+                    <option value="Indian">Indian</option>
+                    <option value="Italian">Italian</option>
+                    <option value="Chinese">Chinese</option>
+                    <option value="Mexican">Mexican</option>
+                    <option value="Thai">Thai</option>
+                    <option value="Dessert">Dessert</option>
+                </select>
+
+                <select id="diet-filter">
+                    <option value="">All Diet Types</option>
+                    <option value="Veg">Vegetarian</option>
+                    <option value="Non-Veg">Non-Vegetarian</option>
+                    <option value="Vegan">Vegan</option>
+                    <option value="Gluten-Free">Gluten Free</option>
+                </select>
+
+                <button onclick="applyFilters()" class="btn-primary">Apply Filters</button>
+            </div>
+        </section>
+
+        <section class="recipes">
+            <h2>All Recipes</h2>
+            <div id="recipes-container" class="recipes-grid">
+                <!-- Recipes will be loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/recipes.js"></script>
+</body>
+
+</html>

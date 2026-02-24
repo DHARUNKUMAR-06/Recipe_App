@@ -1,0 +1,110 @@
+// Check login status
+function checkAuth() {
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+
+    const authLinks = document.getElementById('auth-links');
+    const userInfo = document.getElementById('user-info');
+    const usernameSpan = document.getElementById('username');
+
+    if (token && user) {
+        if (authLinks) authLinks.style.display = 'none';
+        if (userInfo) {
+            userInfo.style.display = 'inline-flex';
+            usernameSpan.textContent = user.name;
+        }
+    } else {
+        if (authLinks) authLinks.style.display = 'inline-flex';
+        if (userInfo) userInfo.style.display = 'none';
+    }
+}
+
+// Logout
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/';
+}
+
+// Handle register
+if (window.location.pathname.includes('register.html') || window.location.pathname.includes('landing.html')) {
+    document.getElementById('register-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const userData = {
+            name: document.getElementById('register-name') ? document.getElementById('register-name').value : document.getElementById('name').value,
+            email: document.getElementById('register-email') ? document.getElementById('register-email').value : document.getElementById('email').value,
+            password: document.getElementById('register-password') ? document.getElementById('register-password').value : document.getElementById('password').value
+        };
+
+        try {
+            const data = await API.register(userData);
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            window.location.href = '/';
+        } catch (error) {
+            alert(error.message);
+        }
+    });
+}
+
+// Handle login
+if (window.location.pathname.includes('login.html') || window.location.pathname.includes('landing.html')) {
+    document.getElementById('login-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const credentials = {
+            email: document.getElementById('login-email') ? document.getElementById('login-email').value : document.getElementById('email').value,
+            password: document.getElementById('login-password') ? document.getElementById('login-password').value : document.getElementById('password').value
+        };
+
+        try {
+            const data = await API.login(credentials);
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            window.location.href = '/';
+        } catch (error) {
+            alert(error.message);
+        }
+    });
+}
+
+// Toggle Favorite
+window.toggleFavorite = async function (btn, recipeId) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('Please login to favorite recipes');
+        window.location.href = '/landing.html';
+        return;
+    }
+
+    try {
+        const response = await API.toggleFavorite(recipeId);
+
+        // Update visually by toggling the favorited class on the button that was clicked
+        if (btn && btn.classList) {
+            if (response.favorited) {
+                btn.classList.add('favorited');
+            } else {
+                btn.classList.remove('favorited');
+            }
+        }
+
+        // If on favorites page, we might want to reload or remove card
+        if (window.location.pathname.includes('favorites.html') && !response.favorited) {
+            btn.closest('.recipe-card').remove();
+
+            // Re-check empty state if needed
+            const container = document.getElementById('favorites-container');
+            if (container && container.children.length === 0) {
+                container.innerHTML = '<p>No favorite recipes yet</p>';
+            }
+        }
+    } catch (error) {
+        console.error('Error toggling favorite:', error);
+        alert(error.message || 'Failed to toggle favorite');
+    }
+};
+
+// Check auth on every page
+document.addEventListener('DOMContentLoaded', checkAuth);
