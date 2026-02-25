@@ -7,7 +7,8 @@ const {
   updateRecipe,
   filterRecipes,
   toggleFavorite,
-  getFavorites
+  getFavorites,
+  addReview
 } = require('../controllers/recipeController');
 const auth = require('../middleware/auth');
 
@@ -18,5 +19,6 @@ router.get('/:id', getRecipe);
 router.post('/', auth, createRecipe);
 router.put('/:id', auth, updateRecipe);
 router.post('/:id/favorite', auth, toggleFavorite);
+router.post('/:id/review', auth, addReview);
 
 module.exports = router;

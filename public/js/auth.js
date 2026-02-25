@@ -11,11 +11,18 @@ function checkAuth() {
         if (authLinks) authLinks.style.display = 'none';
         if (userInfo) {
             userInfo.style.display = 'inline-flex';
-            usernameSpan.textContent = user.name;
+            usernameSpan.innerHTML = `${user.name} ${user.role === 'admin' ? '<span style="background: var(--primary); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin-left: 5px;">Admin</span>' : ''}`;
+        }
+
+        // Hide Favorites link if admin
+        if (user.role === 'admin') {
+            document.querySelectorAll('a[href="/favorites.html"]').forEach(el => el.style.display = 'none');
         }
     } else {
         if (authLinks) authLinks.style.display = 'inline-flex';
         if (userInfo) userInfo.style.display = 'none';
+        // Hide Favorites link if not logged in
+        document.querySelectorAll('a[href="/favorites.html"]').forEach(el => el.style.display = 'none');
     }
 }
 
@@ -60,8 +67,34 @@ if (window.location.pathname.includes('login.html') || window.location.pathname.
 
         try {
             const data = await API.login(credentials);
+            if (data.user.role === 'admin') {
+                alert('You are logging in with an Admin account');
+            }
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
+            window.location.href = '/';
+        } catch (error) {
+            alert(error.message);
+        }
+    });
+}
+
+// Handle admin login
+if (window.location.pathname.includes('admin-login.html')) {
+    document.getElementById('admin-login-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const credentials = {
+            email: document.getElementById('admin-email').value,
+            password: document.getElementById('admin-password').value
+        };
+
+        try {
+            const data = await API.adminLogin(credentials);
+            alert('You are logging in with an Admin account');
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            // You can redirect to a specific admin dashboard if you have one, or to home page.
             window.location.href = '/';
         } catch (error) {
             alert(error.message);

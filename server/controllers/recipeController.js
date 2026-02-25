@@ -96,3 +96,46 @@ exports.updateRecipe = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.addReview = async (req, res) => {
+  try {
+    const { rating, comment, reviewName } = req.body;
+    const recipe = await Recipe.findById(req.params.id);
+
+    if (!recipe) {
+      return res.status(404).json({ message: 'Recipe not found' });
+    }
+
+    const user = await User.findById(req.user);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if the user has already reviewed
+    const alreadyReviewed = recipe.reviews.find(
+      (r) => r.user.toString() === req.user.toString()
+    );
+
+    if (alreadyReviewed) {
+      return res.status(400).json({ message: 'You have already reviewed this recipe' });
+    }
+
+    const review = {
+      user: req.user,
+      name: reviewName || user.name, // Use custom name if provided, else default to user's registered name
+      rating: Number(rating),
+      comment,
+      createdAt: new Date()
+    };
+
+    recipe.reviews.push(review);
+
+    // Update average rating
+    recipe.averageRating = recipe.reviews.reduce((acc, item) => item.rating + acc, 0) / recipe.reviews.length;
+
+    await recipe.save();
+    res.status(201).json({ message: 'Review added', recipe });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

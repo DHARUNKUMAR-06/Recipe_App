@@ -1,7 +1,7 @@
 const API = {
     async request(endpoint, options = {}) {
         const token = localStorage.getItem('token');
-        
+
         const headers = {
             'Content-Type': 'application/json',
             ...options.headers
@@ -35,6 +35,13 @@ const API = {
 
     async login(credentials) {
         return this.request('/api/users/login', {
+            method: 'POST',
+            body: JSON.stringify(credentials)
+        });
+    },
+
+    async adminLogin(credentials) {
+        return this.request('/api/users/admin-login', {
             method: 'POST',
             body: JSON.stringify(credentials)
         });
@@ -74,5 +81,12 @@ const API = {
 
     async getFavorites() {
         return this.request('/api/recipes/favorites');
+    },
+
+    async addReview(recipeId, reviewData) {
+        return this.request(`/api/recipes/${recipeId}/review`, {
+            method: 'POST',
+            body: JSON.stringify(reviewData)
+        });
     }
 };

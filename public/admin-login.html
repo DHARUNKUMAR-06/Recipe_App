@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - RecipeShare</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .landing-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .auth-container {
+            flex: 1;
+            min-width: 300px;
+            max-width: 450px;
+            background: var(--surface);
+            padding: 3rem;
+            border-radius: 30px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+            /* red for admin */
+        }
+
+        .auth-tabs {
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e0e0e0;
+            text-align: center;
+            padding-bottom: 10px;
+        }
+
+        .auth-tabs h2 {
+            color: var(--primary);
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="logo" style="cursor: pointer;" onclick="window.location.href='/'">RecipeShare Admin</h1>
+            <div class="nav-links">
+                <a href="/">Go to App</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="landing-container">
+        <div class="auth-container">
+            <div class="auth-tabs">
+                <h2>Admin Panel Login</h2>
+            </div>
+
+            <div id="admin-login-section">
+                <form id="admin-login-form">
+                    <div class="form-group">
+                        <label>Admin Email</label>
+                        <input type="email" id="admin-email" required>
+                    </div>
+                    <div class="form-group" style="position: relative;">
+                        <label>Password</label>
+                        <input type="password" id="admin-password" required>
+                        <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="admin-show-password" onclick="toggleAdminPassword()"
+                                style="width: auto;">
+                            <label for="admin-show-password" style="font-size: 0.9rem; margin-bottom: 0;">Show
+                                Password</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary"
+                        style="width: 100%; display: block; margin-top: 2rem; background: #e74c3c;">Login as
+                        Admin</button>
+                    <p style="text-align: center; margin-top: 15px;"><a href="/landing.html">Not an admin? Login as
+                            user</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleAdminPassword() {
+            const input = document.getElementById('admin-password');
+            if (input.type === "password") {
+                input.type = "text";
+            } else {
+                input.type = "password";
+            }
+        }
+    </script>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+</body>
+
+</html>
