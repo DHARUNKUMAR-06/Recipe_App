@@ -139,3 +139,26 @@ exports.addReview = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.deleteRecipe = async (req, res) => {
+  try {
+    const recipe = await Recipe.findById(req.params.id);
+    if (!recipe) {
+      return res.status(404).json({ message: 'Recipe not found' });
+    }
+
+    const user = await User.findById(req.user);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.role !== 'admin' && (!recipe.createdBy || recipe.createdBy.toString() !== req.user)) {
+      return res.status(403).json({ message: 'Not authorized to delete this recipe' });
+    }
+
+    await Recipe.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Recipe deleted' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

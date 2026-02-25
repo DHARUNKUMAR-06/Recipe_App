@@ -145,6 +145,8 @@
                     <div class="form-group" style="position: relative;">
                         <label>Password</label>
                         <input type="password" id="login-password" required>
+                        <div id="login-error"
+                            style="color: var(--danger); font-size: 0.85rem; margin-top: 0.5rem; display: none;"></div>
                         <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
                             <input type="checkbox" id="login-show-password" onclick="togglePassword('login-password')"
                                 style="width: auto;">
@@ -170,6 +172,8 @@
                     <div class="form-group" style="position: relative;">
                         <label>Password</label>
                         <input type="password" id="register-password" required>
+                        <div id="register-error"
+                            style="color: var(--danger); font-size: 0.85rem; margin-top: 0.5rem; display: none;"></div>
                         <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
                             <input type="checkbox" id="register-show-password"
                                 onclick="togglePassword('register-password')" style="width: auto;">
@@ -181,10 +185,6 @@
                         style="width: 100%; display: block; margin-top: 2rem;">Register</button>
                 </form>
             </div>
-        </div>
-        <div style="text-align: center; width: 100%; margin-top: 2rem;">
-            <a href="/admin-login.html" style="color: var(--gray); font-size: 0.9rem; text-decoration: underline;">Admin
-                Login</a>
         </div>
     </div>
 

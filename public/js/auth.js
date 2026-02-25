@@ -14,15 +14,21 @@ function checkAuth() {
             usernameSpan.innerHTML = `${user.name} ${user.role === 'admin' ? '<span style="background: var(--primary); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin-left: 5px;">Admin</span>' : ''}`;
         }
 
-        // Hide Favorites link if admin
+        // Show/Hide user-specific links for admin
         if (user.role === 'admin') {
             document.querySelectorAll('a[href="/favorites.html"]').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('a[href="/admin-dashboard.html"]').forEach(el => el.style.display = 'inline-block');
+        } else {
+            // Hide admin-specific links for regular users
+            document.querySelectorAll('a[href="/add-recipe.html"]').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('a[href="/admin-dashboard.html"]').forEach(el => el.style.display = 'none');
         }
     } else {
         if (authLinks) authLinks.style.display = 'inline-flex';
         if (userInfo) userInfo.style.display = 'none';
-        // Hide Favorites link if not logged in
+        // Hide Favorites and Add Recipe link if not logged in
         document.querySelectorAll('a[href="/favorites.html"]').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('a[href="/add-recipe.html"]').forEach(el => el.style.display = 'none');
     }
 }
 
@@ -38,6 +44,9 @@ if (window.location.pathname.includes('register.html') || window.location.pathna
     document.getElementById('register-form')?.addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        const errDiv = document.getElementById('register-error');
+        if (errDiv) errDiv.style.display = 'none';
+
         const userData = {
             name: document.getElementById('register-name') ? document.getElementById('register-name').value : document.getElementById('name').value,
             email: document.getElementById('register-email') ? document.getElementById('register-email').value : document.getElementById('email').value,
@@ -50,7 +59,12 @@ if (window.location.pathname.includes('register.html') || window.location.pathna
             localStorage.setItem('user', JSON.stringify(data.user));
             window.location.href = '/';
         } catch (error) {
-            alert(error.message);
+            if (errDiv) {
+                errDiv.textContent = error.message;
+                errDiv.style.display = 'block';
+            } else {
+                alert(error.message);
+            }
         }
     });
 }
@@ -59,6 +73,9 @@ if (window.location.pathname.includes('register.html') || window.location.pathna
 if (window.location.pathname.includes('login.html') || window.location.pathname.includes('landing.html')) {
     document.getElementById('login-form')?.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        const errDiv = document.getElementById('login-error');
+        if (errDiv) errDiv.style.display = 'none';
 
         const credentials = {
             email: document.getElementById('login-email') ? document.getElementById('login-email').value : document.getElementById('email').value,
@@ -74,7 +91,12 @@ if (window.location.pathname.includes('login.html') || window.location.pathname.
             localStorage.setItem('user', JSON.stringify(data.user));
             window.location.href = '/';
         } catch (error) {
-            alert(error.message);
+            if (errDiv) {
+                errDiv.textContent = error.message;
+                errDiv.style.display = 'block';
+            } else {
+                alert(error.message);
+            }
         }
     });
 }
@@ -83,6 +105,9 @@ if (window.location.pathname.includes('login.html') || window.location.pathname.
 if (window.location.pathname.includes('admin-login.html')) {
     document.getElementById('admin-login-form')?.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        const errDiv = document.getElementById('admin-login-error');
+        if (errDiv) errDiv.style.display = 'none';
 
         const credentials = {
             email: document.getElementById('admin-email').value,
@@ -97,7 +122,12 @@ if (window.location.pathname.includes('admin-login.html')) {
             // You can redirect to a specific admin dashboard if you have one, or to home page.
             window.location.href = '/';
         } catch (error) {
-            alert(error.message);
+            if (errDiv) {
+                errDiv.textContent = error.message;
+                errDiv.style.display = 'block';
+            } else {
+                alert(error.message);
+            }
         }
     });
 }

@@ -88,5 +88,16 @@ const API = {
             method: 'POST',
             body: JSON.stringify(reviewData)
         });
+    },
+
+    async deleteRecipe(id) {
+        return this.request(`/api/recipes/${id}`, {
+            method: 'DELETE'
+        });
+    },
+
+    // Admin
+    async getAnalytics() {
+        return this.request('/api/admin/analytics');
     }
 };

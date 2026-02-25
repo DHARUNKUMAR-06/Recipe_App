@@ -13,7 +13,27 @@
         <div class="nav-container">
             <h1 class="logo" style="cursor: pointer;" onclick="window.location.href='/'">RecipeShare</h1>
             <div class="nav-links">
-                <a href="/" class="active">Home</a>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <a href="/" class="active">Home</a>
+                    <div class="search-container"
+                        style="display: flex; align-items: center; background: rgba(0,0,0,0.05); border-radius: 20px; padding: 4px 10px; min-height: 36px;">
+                        <span id="search-icon"
+                            style="cursor: pointer; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--surface); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s ease;"
+                            onmouseover="this.style.background='var(--primary)'; this.style.color='white';"
+                            onmouseout="this.style.background='var(--surface)'; this.style.color='var(--primary)';"
+                            onclick="toggleSearch()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </span>
+                        <input type="text" id="global-search-input" placeholder="Search..."
+                            style="width: 0; opacity: 0; border: none; outline: none; transition: width 0.3s ease, opacity 0.3s ease; background: transparent; color: var(--dark); padding: 0;"
+                            onkeyup="handleGlobalSearch(event)">
+                    </div>
+                </div>
+                <a href="/admin-dashboard.html" style="display: none;">Dashboard</a>
                 <a href="/add-recipe.html">Add Recipe</a>
                 <a href="/favorites.html">Favorites</a>
                 <div id="auth-links">

@@ -9,6 +9,20 @@ async function loadRecipes() {
     try {
         const recipes = await API.getAllRecipes();
         displayRecipes(recipes);
+
+        // Handle global search if redirected from another page
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchParam = urlParams.get('search');
+        if (searchParam) {
+            const input = document.getElementById('global-search-input');
+            if (input) {
+                input.style.width = '200px';
+                input.style.opacity = '1';
+                input.style.padding = '0 10px';
+                input.value = searchParam;
+                applyLocalSearch(searchParam.toLowerCase());
+            }
+        }
     } catch (error) {
         console.error('Error:', error);
     }
@@ -28,11 +42,13 @@ function displayRecipes(recipes) {
     let html = '';
     recipes.forEach(recipe => {
         let editBtn = '';
-        let viewBtn = `<a href="/recipe.html?id=${recipe._id}" class="btn-view">View & Rate</a>`;
+        let viewBtn = `<a href="/recipe.html?id=${recipe._id}" class="btn-view">Rate</a>`;
+        let deleteBtn = '';
 
         if (user.role === 'admin') {
             editBtn = `<a href="/edit-recipe.html?id=${recipe._id}" class="btn-view" style="background: var(--warning); color: #fff;">Edit</a>`;
             viewBtn = `<a href="/recipe.html?id=${recipe._id}" class="btn-view" style="background: var(--secondary);">Reviews</a>`;
+            deleteBtn = `<button onclick="deleteRecipe('${recipe._id}')" class="btn-view" style="background: #e74c3c; color: #fff; cursor: pointer; border: none;">Delete</button>`;
         } else if (recipe.createdBy === user.id) {
             editBtn = `<a href="/edit-recipe.html?id=${recipe._id}" class="btn-view" style="background: var(--warning); color: #fff;">Edit</a>`;
         }
@@ -40,7 +56,9 @@ function displayRecipes(recipes) {
         html += `
             <div class="recipe-card">
                 <div class="recipe-image-wrapper">
-                    <img src="${recipe.imageUrl || 'https://via.placeholder.com/300x200?text=Recipe'}" alt="${recipe.title}">
+                    <a href="/recipe.html?id=${recipe._id}">
+                        <img src="${recipe.imageUrl || 'https://via.placeholder.com/300x200?text=Recipe'}" alt="${recipe.title}">
+                    </a>
                 </div>
                 <div class="recipe-content">
                     <h3>${recipe.title}</h3>
@@ -55,6 +73,7 @@ function displayRecipes(recipes) {
                     <div class="recipe-actions">
                         ${viewBtn}
                         ${editBtn}
+                        ${deleteBtn}
                         ${user.role !== 'admin' ? `
                         <button class="btn-favorite" onclick="toggleFavorite(this, '${recipe._id}')" aria-label="Favorite">
                             ❤
@@ -209,6 +228,22 @@ window.submitReview = async function (event, recipeId) {
     }
 };
 
+// Delete Recipe function
+window.deleteRecipe = async function (recipeId) {
+    if (!confirm('Are you sure you want to delete this recipe? This action cannot be undone.')) {
+        return;
+    }
+
+    try {
+        await API.deleteRecipe(recipeId);
+        alert('Recipe deleted successfully');
+        loadRecipes(); // Refresh the list
+    } catch (error) {
+        console.error('Error deleting recipe:', error);
+        alert(error.message || 'Failed to delete recipe');
+    }
+};
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
@@ -219,3 +254,78 @@ document.addEventListener('DOMContentLoaded', () => {
         loadRecipeDetails();
     }
 });
+
+// Search functionality
+window.toggleSearch = function () {
+    const input = document.getElementById('global-search-input');
+    if (!input) return;
+
+    if (input.style.width === '0px' || input.style.width === '') {
+        input.style.width = '200px';
+        input.style.opacity = '1';
+        input.style.padding = '0 10px';
+        input.focus();
+    } else {
+        input.style.width = '0px';
+        input.style.opacity = '0';
+        input.style.padding = '0';
+        input.value = '';
+        if (typeof applyLocalSearch === 'function' && window.location.pathname.match(/\/(index\.html)?$/)) {
+            applyLocalSearch('');
+        }
+    }
+};
+
+window.handleGlobalSearch = function (event) {
+    const query = event.target ? event.target.value.toLowerCase() : '';
+
+    // If on home page, filter directly
+    if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+        applyLocalSearch(query);
+    } else {
+        // If on another page, press Enter to search on home page
+        if (event.key === 'Enter' && query.trim() !== '') {
+            window.location.href = `/?search=${encodeURIComponent(query)}`;
+        }
+    }
+};
+
+window.applyLocalSearch = function (query) {
+    const recipesContainer = document.getElementById('recipes-container');
+    if (!recipesContainer) return;
+
+    const recipeCards = recipesContainer.querySelectorAll('.recipe-card');
+    let hasVisibleCards = false;
+
+    recipeCards.forEach(card => {
+        const title = card.querySelector('h3') ? card.querySelector('h3').textContent.toLowerCase() : '';
+        const cuisine = card.querySelector('.cuisine-tag') ? card.querySelector('.cuisine-tag').textContent.toLowerCase() : '';
+        const diet = card.querySelector('.diet-tag') ? card.querySelector('.diet-tag').textContent.toLowerCase() : '';
+
+        if (title.includes(query) || cuisine.includes(query) || diet.includes(query)) {
+            card.style.display = 'block';
+            hasVisibleCards = true;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    // Handle initial 'no recipes found' message if all cards are hidden
+    let noResultsMsg = document.getElementById('no-search-results');
+    if (!hasVisibleCards && recipeCards.length > 0) {
+        if (!noResultsMsg) {
+            noResultsMsg = document.createElement('p');
+            noResultsMsg.id = 'no-search-results';
+            noResultsMsg.textContent = 'No recipes match your search.';
+            noResultsMsg.style.textAlign = 'center';
+            noResultsMsg.style.width = '100%';
+            noResultsMsg.style.padding = '2rem';
+            noResultsMsg.style.color = 'var(--gray)';
+            recipesContainer.appendChild(noResultsMsg);
+        } else {
+            noResultsMsg.style.display = 'block';
+        }
+    } else if (noResultsMsg) {
+        noResultsMsg.style.display = 'none';
+    }
+};

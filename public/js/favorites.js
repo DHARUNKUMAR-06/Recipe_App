@@ -30,7 +30,9 @@ function displayFavorites(recipes) {
         html += `
             <div class="recipe-card">
                 <div class="recipe-image-wrapper">
-                    <img src="${recipe.imageUrl}" alt="${recipe.title}">
+                    <a href="/recipe.html?id=${recipe._id}">
+                        <img src="${recipe.imageUrl}" alt="${recipe.title}">
+                    </a>
                 </div>
                 <div class="recipe-content">
                     <h3>${recipe.title}</h3>
@@ -39,7 +41,7 @@ function displayFavorites(recipes) {
                         <span class="diet-tag">${recipe.dietType}</span>
                     </div>
                     <div class="recipe-actions">
-                        <a href="/recipe.html?id=${recipe._id}" class="btn-view">View</a>
+                        <a href="/recipe.html?id=${recipe._id}" class="btn-view">Rate</a>
                         <a href="/edit-recipe.html?id=${recipe._id}" class="btn-view" style="background: var(--warning); color: #fff;">Edit</a>
                         <button class="btn-favorite favorited" onclick="toggleFavorite(this, '${recipe._id}')" aria-label="Remove Favorite">
                             ❤
