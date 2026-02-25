@@ -1,5 +1,11 @@
 // Load all recipes
 async function loadRecipes() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/landing.html';
+        return;
+    }
+
     try {
         const recipes = await API.getAllRecipes();
         displayRecipes(recipes);
@@ -61,6 +67,12 @@ async function applyFilters() {
 
 // Load single recipe
 async function loadRecipeDetails() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/landing.html';
+        return;
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const recipeId = urlParams.get('id');
 

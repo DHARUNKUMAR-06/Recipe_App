@@ -15,7 +15,7 @@ exports.register = async (req, res) => {
     const user = new User({ name, email, password: hashedPassword });
     await user.save();
 
-    const token = jwt.sign({ userId: user._id }, 'your-secret-key');
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
     res.json({ token, user: { id: user._id, name, email } });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -31,7 +31,7 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ userId: user._id }, 'your-secret-key');
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
     res.json({ token, user: { id: user._id, name: user.name, email } });
   } catch (error) {
     res.status(500).json({ message: error.message });
