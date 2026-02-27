@@ -170,4 +170,16 @@ window.toggleFavorite = async function (btn, recipeId) {
 };
 
 // Check auth on every page
-document.addEventListener('DOMContentLoaded', checkAuth);
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuth();
+
+    // Dynamically load chat widget only if user is logged in
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+
+    if (token && user) {
+        const chatScript = document.createElement('script');
+        chatScript.src = '/js/chat-widget.js';
+        document.body.appendChild(chatScript);
+    }
+});

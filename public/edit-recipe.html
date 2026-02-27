@@ -67,26 +67,28 @@
             </div>
             <div class="form-group">
                 <label>Cuisine *</label>
-                <select id="cuisine" required>
-                    <option value="">Select Cuisine</option>
-                    <option value="American">American</option>
-                    <option value="Indian">Indian</option>
-                    <option value="Italian">Italian</option>
-                    <option value="Chinese">Chinese</option>
-                    <option value="Mexican">Mexican</option>
-                    <option value="Thai">Thai</option>
-                    <option value="Dessert">Dessert</option>
-                </select>
+                <input type="text" id="cuisine" list="cuisine-options" placeholder="Select or type Cuisine" required
+                    autocomplete="off">
+                <datalist id="cuisine-options">
+                    <option value="American">
+                    <option value="Indian">
+                    <option value="Italian">
+                    <option value="Chinese">
+                    <option value="Mexican">
+                    <option value="Thai">
+                    <option value="Dessert">
+                </datalist>
             </div>
             <div class="form-group">
                 <label>Diet Type *</label>
-                <select id="dietType" required>
-                    <option value="">Select Diet Type</option>
-                    <option value="Veg">Vegetarian</option>
-                    <option value="Non-Veg">Non-Vegetarian</option>
-                    <option value="Vegan">Vegan</option>
-                    <option value="Gluten-Free">Gluten Free</option>
-                </select>
+                <input type="text" id="dietType" list="dietType-options" placeholder="Select or type Diet Type" required
+                    autocomplete="off">
+                <datalist id="dietType-options">
+                    <option value="Veg">
+                    <option value="Non-Veg">
+                    <option value="Vegan">
+                    <option value="Gluten-Free">
+                </datalist>
             </div>
             <div class="form-group">
                 <label>Image URL (optional)</label>
