@@ -180,8 +180,38 @@ function displayRecipeDetails(recipe) {
             <h3>Ingredients:</h3>
             <p>${(recipe.ingredients || '').replace(/\n/g, '<br>')}</p>
             
-            <h3>Instructions:</h3>
-            <p>${(recipe.instructions || '').replace(/\n/g, '<br>')}</p>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px;">
+                <h3 style="margin: 0;">Instructions:</h3>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button id="translate-icon-btn" type="button" onclick="toggleTranslateMenu()" style="cursor: pointer; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: none; outline: none; border-radius: 50%; background: var(--surface); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s ease;" title="Translate Instructions" onmouseover="this.style.background='var(--primary)'; this.style.color='white';" onmouseout="this.style.background='var(--surface)'; this.style.color='var(--primary)';">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;">
+                            <path d="M5 8l6 6"></path>
+                            <path d="M4 14l6-6 2-3"></path>
+                            <path d="M2 5h12"></path>
+                            <path d="M7 2h1"></path>
+                            <path d="M22 22l-5-10-5 10"></path>
+                            <path d="M14 18h6"></path>
+                        </svg>
+                    </button>
+                    <div id="translate-menu" style="display: none; align-items: center; gap: 8px;">
+                        <select id="translate-lang" style="padding: 6px; border-radius: 4px; border: 1px solid var(--border); outline: none;">
+                            <option value="ta">Tamil</option>
+                            <option value="hi">Hindi</option>
+                            <option value="te">Telugu</option>
+                            <option value="ml">Malayalam</option>
+                            <option value="bn">Bengali</option>
+                            <option value="gu">Gujarati</option>
+                            <option value="kn">Kannada</option>
+                            <option value="mr">Marathi</option>
+                            <option value="en">English</option>
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                        </select>
+                        <button onclick="translateText()" style="padding: 6px 12px; border: none; background: var(--primary); color: white; border-radius: 4px; cursor: pointer; transition: background 0.3s;">Translate</button>
+                    </div>
+                </div>
+            </div>
+            <p id="recipe-instructions-text" data-original="${encodeURIComponent(recipe.instructions || '')}" style="margin-top: 10px;">${(recipe.instructions || '').replace(/\n/g, '<br>')}</p>
 
             <hr style="margin: 30px 0; border: 1px solid var(--border);">
 
@@ -327,5 +357,54 @@ window.applyLocalSearch = function (query) {
         }
     } else if (noResultsMsg) {
         noResultsMsg.style.display = 'none';
+    }
+};
+
+window.toggleTranslateMenu = function () {
+    const menu = document.getElementById('translate-menu');
+    if (menu) {
+        if (menu.style.display === 'flex') {
+            menu.style.display = 'none';
+        } else {
+            menu.style.display = 'flex';
+        }
+    }
+};
+
+window.translateText = async function () {
+    const instructionsEl = document.getElementById('recipe-instructions-text');
+    const langSelect = document.getElementById('translate-lang');
+    if (!instructionsEl || !langSelect) return;
+
+    const targetLang = langSelect.value;
+    const originalText = decodeURIComponent(instructionsEl.getAttribute('data-original'));
+
+    if (!originalText) return;
+
+    const originalHtml = instructionsEl.innerHTML;
+    instructionsEl.innerHTML = '<span style="color: var(--primary); font-style: italic;">Translating...</span>';
+
+    try {
+        const url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=" + targetLang + "&dt=t&q=" + encodeURIComponent(originalText);
+        const response = await fetch(url);
+        const data = await response.json();
+
+        let translatedText = '';
+        if (data && data[0]) {
+            data[0].forEach(item => {
+                if (item[0]) translatedText += item[0];
+            });
+        }
+
+        if (translatedText) {
+            instructionsEl.innerHTML = translatedText.replace(/\n/g, '<br>');
+        } else {
+            instructionsEl.innerHTML = originalHtml;
+            alert('Translation returned no results. Please try again.');
+        }
+    } catch (error) {
+        console.error('Translation error:', error);
+        instructionsEl.innerHTML = originalHtml;
+        alert('Translation failed. Please check your console.');
     }
 };

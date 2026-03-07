@@ -13,6 +13,7 @@ function initChatWidget() {
             flex-direction: column;
             align-items: flex-end;
             font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            pointer-events: none;
         }
 
         /* ===== MAIN CHAT WINDOW ===== */
@@ -59,10 +60,11 @@ function initChatWidget() {
             gap: 10px;
         }
 
-        .chat-title svg {
-            width: 22px;
-            height: 22px;
+        .chat-title svg, .chat-title img {
+            width: 32px;
+            height: 32px;
             fill: white;
+            object-fit: contain;
         }
 
         #chat-close-icon {
@@ -178,6 +180,7 @@ function initChatWidget() {
             cursor: pointer;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             color: white;
+            pointer-events: auto;
         }
 
         #chat-widget-fab:hover {
@@ -185,11 +188,12 @@ function initChatWidget() {
             box-shadow: 0 8px 20px rgba(16, 185, 129, 0.5);
         }
 
-        #chat-widget-fab svg {
-            width: 30px;
-            height: 30px;
+        #chat-widget-fab svg, #chat-widget-fab img {
+            width: 45px;
+            height: 45px;
             fill: white;
             transition: transform 0.3s ease;
+            object-fit: contain;
         }
 
         #chat-widget-fab.chat-widget-fab-active {
@@ -202,9 +206,7 @@ function initChatWidget() {
 
     // Recipe/Food Icon SVG
     const recipeIconSvg = `
-        <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm4.5 13H18v-7c0-2.21-1.79-4-4-4V2h-1v20h2.5v-8h1.5v8z"/>
-        </svg>
+        <img src="/images/green_robot_face.png" alt="Robot Icon" />
     `;
 
     // Create Chat Widget HTML Structure
