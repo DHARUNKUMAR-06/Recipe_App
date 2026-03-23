@@ -1,11 +1,5 @@
 // Load all recipes
 async function loadRecipes() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = '/landing.html';
-        return;
-    }
-
     try {
         const recipes = await API.getAllRecipes();
         displayRecipes(recipes);
@@ -39,15 +33,17 @@ function displayRecipes(recipes) {
     }
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const token = localStorage.getItem('token');
     let html = '';
     recipes.forEach(recipe => {
+        let recipeLink = token ? `/recipe.html?id=${recipe._id}` : `javascript:promptLogin()`;
         let editBtn = '';
-        let viewBtn = `<a href="/recipe.html?id=${recipe._id}" class="btn-view">Rate</a>`;
+        let viewBtn = `<a href="${recipeLink}" class="btn-view">Rate</a>`;
         let deleteBtn = '';
 
         if (user.role === 'admin') {
             editBtn = `<a href="/edit-recipe.html?id=${recipe._id}" class="btn-view" style="background: var(--warning); color: #fff;">Edit</a>`;
-            viewBtn = `<a href="/recipe.html?id=${recipe._id}" class="btn-view" style="background: var(--secondary);">Reviews</a>`;
+            viewBtn = `<a href="${recipeLink}" class="btn-view" style="background: var(--secondary);">Reviews</a>`;
             deleteBtn = `<button onclick="deleteRecipe('${recipe._id}')" class="btn-view" style="background: #e74c3c; color: #fff; cursor: pointer; border: none;">Delete</button>`;
         } else if (recipe.createdBy === user.id) {
             editBtn = `<a href="/edit-recipe.html?id=${recipe._id}" class="btn-view" style="background: var(--warning); color: #fff;">Edit</a>`;
@@ -56,7 +52,7 @@ function displayRecipes(recipes) {
         html += `
             <div class="recipe-card">
                 <div class="recipe-image-wrapper">
-                    <a href="/recipe.html?id=${recipe._id}">
+                    <a href="${recipeLink}">
                         <img src="${recipe.imageUrl || 'https://via.placeholder.com/300x200?text=Recipe'}" alt="${recipe.title}">
                     </a>
                 </div>
@@ -105,6 +101,7 @@ async function applyFilters() {
 async function loadRecipeDetails() {
     const token = localStorage.getItem('token');
     if (!token) {
+        alert("Please login to view recipe details.");
         window.location.href = '/landing.html';
         return;
     }
@@ -239,8 +236,12 @@ window.submitReview = async function (event, recipeId) {
     event.preventDefault();
     const token = localStorage.getItem('token');
     if (!token) {
-        alert('Please login to submit a review.');
-        window.location.href = '/landing.html';
+        if (typeof window.showAuthModal === 'function') {
+            window.showAuthModal('Please log in to submit a review.');
+        } else {
+            alert('Please login to submit a review.');
+            window.location.href = '/landing.html';
+        }
         return;
     }
 
@@ -284,6 +285,16 @@ document.addEventListener('DOMContentLoaded', () => {
         loadRecipeDetails();
     }
 });
+
+// Prompt Login (UI custom modal)
+window.promptLogin = function() {
+    if (typeof window.showAuthModal === 'function') {
+        window.showAuthModal('Please log in or create an account to view recipe instructions, ingredients, and reviews.');
+    } else {
+        alert("Please log in to view recipe details.");
+        window.location.href = '/landing.html';
+    }
+};
 
 // Search functionality
 window.toggleSearch = function () {

@@ -27,7 +27,9 @@
 
         .hero-section h1 {
             font-size: 4rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(to right, var(--primary), var(--secondary), var(--primary));
+            background-size: 200% auto;
+            animation: shine 4s linear infinite;
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -47,13 +49,15 @@
             flex: 1;
             min-width: 300px;
             max-width: 450px;
-            background: var(--surface);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             padding: 3rem;
             border-radius: 30px;
-            box-shadow: var(--shadow);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .auth-container::before {
@@ -97,6 +101,57 @@
             display: block;
         }
 
+        @keyframes shine {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        body {
+            position: relative;
+            background-color: var(--bg-color, #f8fafc);
+        }
+
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .floating-icon {
+            position: absolute;
+            bottom: -100px;
+            font-size: 2.5rem;
+            animation: floatUp 20s linear infinite;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+            opacity: 0;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+
+            5% {
+                opacity: 0.15;
+            }
+
+            95% {
+                opacity: 0.15;
+            }
+
+            100% {
+                transform: translateY(calc(-100vh - 100px)) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
         @media (max-width: 768px) {
             .landing-container {
                 flex-direction: column;
@@ -116,6 +171,19 @@
 </head>
 
 <body>
+    <div class="floating-elements">
+        <div class="floating-icon" style="left: 10%; animation-delay: 0s;">🍔</div>
+        <div class="floating-icon" style="left: 80%; animation-delay: 2s; font-size: 3rem;">🍕</div>
+        <div class="floating-icon" style="left: 45%; animation-delay: 4s; font-size: 2.5rem;">🥗</div>
+        <div class="floating-icon" style="left: 20%; animation-delay: 6s; font-size: 3.5rem;">🍜</div>
+        <div class="floating-icon" style="left: 70%; animation-delay: 8s; font-size: 2rem;">🥑</div>
+        <div class="floating-icon" style="left: 30%; animation-delay: 10s; font-size: 3rem;">🍰</div>
+        <div class="floating-icon" style="left: 90%; animation-delay: 12s; font-size: 2.8rem;">🌮</div>
+        <div class="floating-icon" style="left: 60%; animation-delay: 14s; font-size: 3.2rem;">🍣</div>
+        <div class="floating-icon" style="left: 5%; animation-delay: 16s; font-size: 2.2rem;">🍳</div>
+        <div class="floating-icon" style="left: 50%; animation-delay: 18s; font-size: 2.6rem;">🥐</div>
+    </div>
+
     <nav class="navbar">
         <div class="nav-container">
             <h1 class="logo" style="cursor: pointer;" onclick="window.location.href='/'">SpiceShare</h1>

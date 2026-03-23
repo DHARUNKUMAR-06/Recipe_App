@@ -181,6 +181,7 @@ function initChatWidget() {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             color: white;
             pointer-events: auto;
+            overflow: hidden;
         }
 
         #chat-widget-fab:hover {
@@ -189,11 +190,12 @@ function initChatWidget() {
         }
 
         #chat-widget-fab svg, #chat-widget-fab img {
-            width: 45px;
-            height: 45px;
+            width: 70px;
+            height: 70px;
             fill: white;
             transition: transform 0.3s ease;
             object-fit: contain;
+            max-width: none;
         }
 
         #chat-widget-fab.chat-widget-fab-active {

@@ -28,8 +28,9 @@ async function loadAnalytics() {
         document.getElementById('stat-rating').innerText = data.averageAppRating.toFixed(1);
 
         // Render Charts
-        renderBarChart('cuisine-chart', data.cuisineStats, data.totalRecipes);
-        renderBarChart('diet-chart', data.dietStats, data.totalRecipes);
+        renderPieChart('cuisine-chart', data.cuisineStats);
+        renderPieChart('diet-chart', data.dietStats);
+        renderGrowthChart(data.users, data.recipes);
 
         loading.style.display = 'none';
         content.style.display = 'block';
@@ -39,35 +40,166 @@ async function loadAnalytics() {
     }
 }
 
-// Render simple horizontal bar chart
-function renderBarChart(elementId, stats, total) {
-    const container = document.getElementById(elementId);
-    if (!container) return;
+const chartInstances = {};
+
+// Render Chart.js Doughnut Chart
+function renderPieChart(elementId, stats) {
+    const ctx = document.getElementById(elementId);
+    if (!ctx) return;
 
     // Convert to sorted array
     const sortedStats = Object.entries(stats).sort((a, b) => b[1] - a[1]);
-
-    let html = '';
-    sortedStats.forEach(([label, count]) => {
-        const percentage = total > 0 ? ((count / total) * 100).toFixed(1) : 0;
-        html += `
-            <div class="bar-item">
-                <div class="bar-label">
-                    <span>${label}</span>
-                    <span style="color: var(--gray);">${count} (${percentage}%)</span>
-                </div>
-                <div class="bar-track">
-                    <div class="bar-fill" style="width: ${percentage}%;"></div>
-                </div>
-            </div>
-        `;
-    });
-
+    
     if (sortedStats.length === 0) {
-        html = '<p style="color: var(--gray); text-align: center;">No data available.</p>';
+        return;
     }
 
-    container.innerHTML = html;
+    const labels = sortedStats.map(s => s[0]);
+    const data = sortedStats.map(s => s[1]);
+    
+    if (chartInstances[elementId]) {
+        chartInstances[elementId].destroy();
+    }
+    
+    // Background colors based on UI theme (--primary, --secondary, --warning, --danger, --dark, etc)
+    const bgColors = [
+        '#10b981', // --primary
+        '#84cc16', // --secondary
+        '#f59e0b', // --warning
+        '#ef4444', // --danger
+        '#059669', // --primary-dark
+        '#65a30d', // --secondary-dark
+        '#064e3b', // --dark
+        '#64748b'  // --gray
+    ];
+    
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    const textColor = isDarkMode ? '#f1f1f1' : '#333';
+    
+    chartInstances[elementId] = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: bgColors,
+                borderWidth: 2,
+                borderColor: isDarkMode ? '#1a1a1a' : '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        color: textColor,
+                        padding: 15
+                    }
+                }
+            },
+            cutout: '65%'
+        }
+    });
+}
+
+// Render Platform Growth Chart using Chart.js
+function renderGrowthChart(users, recipes) {
+    if (!users) users = [];
+    if (!recipes) recipes = [];
+    
+    const ctx = document.getElementById('growthChart');
+    if (!ctx) return;
+    
+    // Aggregate by Month-Year
+    const getMonthYear = (dateStr) => {
+        const d = new Date(dateStr || Date.now());
+        return `${d.toLocaleString('default', { month: 'short' })} ${d.getFullYear()}`;
+    };
+
+    const userCounts = {};
+    const recipeCounts = {};
+    const allLabelsTemp = new Set();
+    
+    users.forEach(u => {
+        const my = getMonthYear(u.createdAt);
+        userCounts[my] = (userCounts[my] || 0) + 1;
+        allLabelsTemp.add(my);
+    });
+    
+    recipes.forEach(r => {
+        const my = getMonthYear(r.createdAt);
+        recipeCounts[my] = (recipeCounts[my] || 0) + 1;
+        allLabelsTemp.add(my);
+    });
+    
+    // Sort labels chronologically
+    const allLabels = Array.from(allLabelsTemp).sort((a, b) => {
+        return new Date(a) - new Date(b);
+    });
+    
+    let cumulativeUsers = 0;
+    const userData = allLabels.map(label => {
+        cumulativeUsers += (userCounts[label] || 0);
+        return cumulativeUsers;
+    });
+    
+    let cumulativeRecipes = 0;
+    const recipeData = allLabels.map(label => {
+        cumulativeRecipes += (recipeCounts[label] || 0);
+        return cumulativeRecipes;
+    });
+
+    if (window.growthChartInstance) {
+        window.growthChartInstance.destroy();
+    }
+
+    window.growthChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: allLabels,
+            datasets: [
+                {
+                    label: 'Total Users',
+                    data: userData,
+                    borderColor: '#10b981', // --primary
+                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Total Recipes',
+                    data: recipeData,
+                    borderColor: '#84cc16', // --secondary
+                    backgroundColor: 'rgba(132, 204, 22, 0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
 }
 
 // Ensure init

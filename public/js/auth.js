@@ -136,8 +136,12 @@ if (window.location.pathname.includes('admin-login.html')) {
 window.toggleFavorite = async function (btn, recipeId) {
     const token = localStorage.getItem('token');
     if (!token) {
-        alert('Please login to favorite recipes');
-        window.location.href = '/landing.html';
+        if (typeof window.showAuthModal === 'function') {
+            window.showAuthModal('Please log in to save your favorite recipes.');
+        } else {
+            alert('Please login to favorite recipes');
+            window.location.href = '/landing.html';
+        }
         return;
     }
 
@@ -183,3 +187,97 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(chatScript);
     }
 });
+
+// Global Auth Modal UI
+window.showAuthModal = function(messageText) {
+    let modal = document.getElementById('login-prompt-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'login-prompt-modal';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100vw';
+        modal.style.height = '100vh';
+        modal.style.backgroundColor = 'rgba(0, 0, 0, 0.6)';
+        modal.style.backdropFilter = 'blur(4px)';
+        modal.style.display = 'none';
+        modal.style.justifyContent = 'center';
+        modal.style.alignItems = 'center';
+        modal.style.zIndex = '9999';
+        modal.style.opacity = '0';
+        modal.style.transition = 'opacity 0.3s ease';
+
+        const card = document.createElement('div');
+        card.className = 'auth-form'; 
+        card.style.margin = '0'; 
+        card.style.width = '90%';
+        card.style.maxWidth = '400px';
+        card.style.transform = 'translateY(-20px)';
+        card.style.transition = 'transform 0.3s ease';
+        card.style.boxShadow = '0 15px 40px rgba(0,0,0,0.3)';
+
+        const title = document.createElement('h2');
+        title.innerHTML = 'Sign In Required <br><span style="font-size: 2rem;">🔒</span>';
+        title.style.fontSize = '1.8rem';
+        title.style.marginBottom = '1rem';
+
+        const message = document.createElement('p');
+        message.id = 'auth-modal-msg';
+        message.style.color = 'var(--gray)';
+        message.style.marginBottom = '2rem';
+        message.style.fontSize = '1.05rem';
+        message.style.fontWeight = '500';
+
+        const btnContainer = document.createElement('div');
+        btnContainer.style.display = 'flex';
+        btnContainer.style.gap = '1rem';
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.style.flex = '1';
+        cancelBtn.style.padding = '0.8rem';
+        cancelBtn.style.background = 'transparent';
+        cancelBtn.style.color = 'var(--gray)';
+        cancelBtn.style.border = '2px solid var(--border-color)';
+        cancelBtn.style.borderRadius = '50px';
+        cancelBtn.style.cursor = 'pointer';
+        cancelBtn.style.fontWeight = '600';
+        cancelBtn.style.transition = 'var(--transition)';
+        cancelBtn.onmouseover = () => { cancelBtn.style.borderColor = 'var(--danger)'; cancelBtn.style.color = 'var(--danger)'; };
+        cancelBtn.onmouseout = () => { cancelBtn.style.borderColor = 'var(--border-color)'; cancelBtn.style.color = 'var(--gray)'; };
+        cancelBtn.onclick = () => {
+            modal.style.opacity = '0';
+            card.style.transform = 'translateY(-20px)';
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+        };
+
+        const loginBtn = document.createElement('button');
+        loginBtn.textContent = 'Log In';
+        loginBtn.className = 'btn-primary';
+        loginBtn.style.flex = '1';
+        loginBtn.style.padding = '0.8rem';
+        loginBtn.style.margin = '0';
+        loginBtn.onclick = () => {
+            window.location.href = '/landing.html';
+        };
+
+        btnContainer.appendChild(cancelBtn);
+        btnContainer.appendChild(loginBtn);
+
+        card.appendChild(title);
+        card.appendChild(message);
+        card.appendChild(btnContainer);
+
+        modal.appendChild(card);
+        document.body.appendChild(modal);
+    }
+
+    document.getElementById('auth-modal-msg').textContent = messageText || 'Please log in to continue.';
+
+    modal.style.display = 'flex';
+    requestAnimationFrame(() => {
+        modal.style.opacity = '1';
+        modal.querySelector('.auth-form').style.transform = 'translateY(0)';
+    });
+};
